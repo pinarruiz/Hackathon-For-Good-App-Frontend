@@ -1,0 +1,8 @@
+{
+    "plugins": [
+        "@babel/plugin-syntax-import-assertions"
+    ],
+    "presets": [
+        "next/babel"
+    ]
+}

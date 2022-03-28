@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonLabels:
+  app: hackathon-website
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+secretGenerator:
+  - name: hackathon-website-env-secrets
+    literals:
+      - BACK_ADDRESS="https://hackathon-dev.apinar.es"

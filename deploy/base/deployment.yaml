@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hackathon-website-deployment
+spec:
+  selector: {}
+  template:
+    spec:
+      containers:
+        - name: hackathon-website
+          image: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 3000
+          resources: {}
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              port: 3000
+              path: "/api/ping"
+              httpHeaders:
+                - name: Host
+                  value: "hackathon-dev.apinar.es"
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              port: 3000
+              path: "/api/ping"
+              httpHeaders:
+                - name: Host
+                  value: "hackathon-dev.apinar.es"
+          envFrom:
+            - secretRef:
+                name: hackathon-website-env-secrets
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 50%

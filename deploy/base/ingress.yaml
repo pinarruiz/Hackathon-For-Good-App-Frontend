@@ -1,0 +1,16 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hackathon-website-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host("hackathon-dev.apinar.es") && !PathPrefix("/api/")
+      services:
+        - name: hackathon-website-service
+          port: 3000
+  tls:
+    certResolver: le
