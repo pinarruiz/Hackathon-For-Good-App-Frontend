@@ -115,7 +115,7 @@ La aplicacion funcional puede ser vista en el siguiente video:
 <link del video>
 
 ## Como ejecutar la aplicacion
-1. En cualquier telefono movil abrir un navegador y acceder a la URL https://hackathon-dev.apinar.es
+1. En cualquier telefono movil abrir un navegador y acceder a la URL https://trashmap.apinar.es
 2. Hacer una foto pulsando el botón de capturar. 
 3. Se mostrará un mapa con el contenedor más cercano en un icono rojo y la ubicación del usuario en azul. Pinchando en el icono rojo aparecen las coordenadas para poder ser buscado en Google Maps. 
 
