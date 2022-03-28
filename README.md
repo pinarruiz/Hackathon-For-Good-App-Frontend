@@ -82,10 +82,22 @@ El frontend ha sido desplegado a través de estaticos en un bucket S3. Nuestra e
 
 Una vez capturada la imagen del residuo por el usuario a través del Frontend, esta es enviada a un modelo de Machine Learning encargado de clasificar la imagen en uno de los tipos de contenedores descritos arriba. El modelo de Machine Learning se basa en dos fases: Entrenamiento y Despliegue. 
 
-### Entrenamiento
+### Entrenamiento y elección de procesador de Intel
 El objetivo del entrenamiento es permitir al modelo aprender como clasificar imagenes que no ha visto en las distintas clases descritas arriba. El código desarrollado para ello se encuentra en https://github.com/ArturoPinar/MLModelHackathonAWSIntel/blob/main/MLModel/awsIntelHackathonModelTraining.ipynb. Debido a falta de tiempo, el notebook referenciado no se encuentra funcional y para poder serlo necesita ser ampliado en futuros desarrollos. 
 
-Para el entrenamiento hemos utilizado Amazon Sagemaker ya que nos aporta un entorno basado en Jupyter Notebooks y óptimo para el desarrollo del modelo. Además, la instancia utilizada para el entrenamiento ha sido una ml.m4.xlarge ya que entra en la capa gratuita, ofreciendo 50 horas. Además ofrece una CPU de Intel basada en el Intel Xeon E5-2686 o el Intel Xeon E5-2676 lo que nos ha proporcionado alta velocidad entrenando el modelo (5 epochs = 20 minutos). 
+Para el entrenamiento hemos utilizado Amazon Sagemaker ya que nos aporta un entorno basado en Jupyter Notebooks y óptimo para el desarrollo del modelo. 
+
+El entrenamiento del modelo ha sido llevado a cabo en una instancia `ml.c5.2xlarge` elegida en las siguientes fases: 
+
+1. En primer lugar la familia de procesadores C ha sido la mejor considerada para los objetivos de nuestro modelo puesto que está optimizada para computación que es el recurso más importante a la hora de entrenar el modelo. Por otro lado, para mejorar aún más la velocidad de entrenamiento del modelo se puede utilizar computación con GPUs (familias P y G), sin embargo, las hemos descartado al no ser muy relevantes para este desafío puesto que no contenían procesadores de Intel. 
+
+2. Dentro de la familia C hemos tratado de elegir los procesadores de Intel de última generación, que surgieron supliendo carencias presentadas por sus antecesores. Sin embargo, otro requisito importante ha sido la región en la que hemos desplegado todos los recursos del proyecto (eu-west-1). A cambio de evitar costes en latencia y gastos por transferencia de datos hemos renunciado a la útimo generación de esta familia (el procesador C6i) y hemos utilizado el C5 en su lugar. La elección del tamaño `2xlarge` ha sido porque hemos considerado que 8 vCPUs son suficientes para entrenar en relación tiempo - precio el modelo. 
+
+3. Por último hemos hecho una última comparación entre la instancia `ml.m4.xlarge` y la instancia `ml.c5.2xlarge`. La principal ventaja presentada por la instancia `ml.m4.xlarge` era que entra en la capa gratuita de Amazon Sagemaker ofreciendo 50 horas de entrenamiento. Sin embargo, el tiempo de la `ml.c5.2xlarge`(1 epoch = 11 minutos) es casi la mitad que el de la `ml.m4.xlarge` (1 epoch = 20 minutos). Sumado a esto, el procesador C5 ofrece la optimización DL Boost que incrementa notablemente la velocidad del entrenamiento y inferencia del modelo. Por último las instrucciones Intel Vector Extension utilizadas son la familia `AVX-512` que permiten realizar la optimización de las instrucciones enviadas a la CPU mejorando asi el rendimiento y superando a sus antecesoras las `AVX2`. 
+ 
+4. Por otro lado, tambien existe la posibilidad de utilizar una instancia de la generacion `Habana Gaudi` como la `DL1`, sin embargo como el precio se incrementa y el resto de entrenamientos se han hecho en la region `eu-west-1`, no la hemos utilizado puesto que 1) no esta disponible en la región `eu-west-1` y eso implica una latencia añadida, asi como un coste añadido en la transferencia de datos entre regiones. 2) Por otro lado, la solución implementada tampoco desempeña tareas de Deep Learning puesto que el número de imágenes para el dataset no aumentado no supera las 200 imagenes por clase o incluso el dataset aumentado oscila alrededor de 1000 imagenes por clase, siendo consideradas solo 5 clases. Por ese motivo como el procesador de Intel DL1 está optimizado principalmente para tareas de Deep Learning no los hemos considerado óptimos para la solución. 
+
+
 
 ### Despliegue
 
