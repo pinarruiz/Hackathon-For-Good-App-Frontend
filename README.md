@@ -76,7 +76,7 @@ El Frontend, cuyo código se encuentra en este repositorio, es el encargado del 
 
 ![image](https://user-images.githubusercontent.com/23140351/160395323-009fe735-da32-41a8-8f00-c56c239ad37a.png)
 
-La implementación del Frontend se ha basado en el uso de estáticos utilizando el servicio Amazon S3. Nuestra elección de este servicio se basa en que los fines para los que más se utiliza son sitios concretos en linea, aplicaciones para el telefono movil, analisis de Big Data, etc debido a eso como el Frontend se basa en una aplicacion web hemos considerado que el mejor servicio para desarrollarlo era Amazon S3. 
+El frontend ha sido desplegado a través de estaticos en un bucket S3. Nuestra elección de este servicio se basa en que puesto que S3 es un servicio de estáticos, y el frontend tambien, combinando este servicio con Cloudfront podemos servir estaticos a bajo coste y alta velocidad.
 
 ## Modelo de Machine Learning
 
@@ -85,7 +85,7 @@ Una vez capturada la imagen del residuo por el usuario a través del Frontend, e
 ### Entrenamiento
 El objetivo del entrenamiento es permitir al modelo aprender como clasificar imagenes que no ha visto en las distintas clases descritas arriba. El código desarrollado para ello se encuentra en https://github.com/ArturoPinar/MLModelHackathonAWSIntel/blob/main/MLModel/awsIntelHackathonModelTraining.ipynb. Debido a falta de tiempo, el notebook referenciado no se encuentra funcional y para poder serlo necesita ser ampliado en futuros desarrollos. 
 
-Para el entrenamiento hemos utilizado Amazon Sagemaker ya que nos aporta un entorno basado en Jupyter Notebooks y óptimo para el desarrollo del modelo. Además, la instancia utilizada para el entrenamiento ha sido Amazon EC2 ml.m4.xlarge ya que ofrece una capa gratuita de 150 horas. Además ofrece un HW de Intel basado en procesadores Intel Xeon E5-2686 o Intel Xeon E5-2676 lo que nos ha proporcionado alta velocidad entrenando el modelo (5 epochs = 20 minutos). 
+Para el entrenamiento hemos utilizado Amazon Sagemaker ya que nos aporta un entorno basado en Jupyter Notebooks y óptimo para el desarrollo del modelo. Además, la instancia utilizada para el entrenamiento ha sido una ml.m4.xlarge ya que entra en la capa gratuita, ofreciendo 50 horas. Además ofrece una CPU de Intel basada en el Intel Xeon E5-2686 o el Intel Xeon E5-2676 lo que nos ha proporcionado alta velocidad entrenando el modelo (5 epochs = 20 minutos). 
 
 ### Despliegue
 
@@ -96,8 +96,9 @@ Una vez entrenado el model se puede desplegar para responder a peticiones de pre
 
 El Backend, cuyo código se encuentra en el repositorio https://github.com/pinarruiz/Hackathon-For-Good-App-Backend, proporciona el punto de comunicación y procesamiento entre la imágen del Frontend y la clase devuelta por el modelo de Machine Learning. Tras recibir la respuesta del modelo, se ocupa de buscar el tipo de contenedor más cercano a la posición del usuario en el dataset 1. 
 
-El backend esta desplegado en un contenedor EC2 bajo un elastic load balancer. El frontend y el backend estan bajo un Cloudfront. 
+El backend esta desplegado en una instancia EC2 de tipo `t2.micro` bajo un elastic load balancer, a su vez se encuentra detrás de una distribución de Cloudfront junto con el bucket del front.
 
+La instancia elegida ha sido la `t2.micro`, ya que a pesar de ser una instancia de recursos modestos, aporta velocidad más que suficiente para procesar las llamadas del front y cruzar los datos de ubicaciones de los contenedores gracias al procesador Xeon de alta velocidad que incorpora, que nos permite alcanzar velocidades de hasta 3.3 GHz.
 
 ## Aplicación funcional y futuro desarrollo
 
@@ -105,14 +106,14 @@ El principal problema encontrado en el proyecto ha sido la falta del tiempo. El 
 
 Por este motivo no podemos presentar la solución completa descrita arriba. La solución presentada se describe en la siguiente imagen. 
 
-![image](https://user-images.githubusercontent.com/23140351/160404687-174fe574-401d-484f-8cc3-01e0062fa76d.png)
+![image](Iac_Diagram.png)
 
 En la imagen se muestran las distintas interacciones entre los módulos y servicios diseñados para la aplicación. Las flechas en negro muestran las interacciones implementadas y las flechas en rojo las interacciones diseñadas en un primer momento pero que por falta de tiempo no han podido ser implementadas. 
 
 En resumen, un usuario puede subir una imagen a través del Frontend, a continuación la aplicacion mostrará al usuario el contenedor más cercano a su posición (pero no tiene porque ser el contenedor adecuado). Por otro lado, el modelo implementado permite ser entrenado. Como futuro desarrollo hará falta conectar el backend para que envíe al modelo desplegado la imagen indicada por el usuario, prediga el tipo de contenedor adecuado, y con la parte ya implementada actualmente, se localize el contenedor mas cercano del tipo indicado. 
 
 La aplicacion funcional puede ser vista en el siguiente video: 
-<link del video>
+[Video](https://youtu.be/Y-XY4_ZifXg)
 
 ## Como ejecutar la aplicacion
 1. En cualquier telefono movil abrir un navegador y acceder a la URL https://trashmap.apinar.es
